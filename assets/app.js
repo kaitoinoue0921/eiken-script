@@ -1,4 +1,4 @@
-// 受験英語 完全攻略ノート — 共通スクリプト
+// 英検スクリプト — 共通スクリプト
 // ・表示範囲フィルタ（必須／必須＋差がつく／すべて）
 // ・「理解した」チェック（チェックした項目は隠す。元に戻せる）
 // ・経験値・レベル・トロフィー・連続日数（記録ページに表示）
@@ -202,8 +202,8 @@
     badge.className = 'lv-badge';
     badge.href = 'progress.html';
     badge.innerHTML = '<span class="lv-n"></span><span class="lv-bar"><i></i></span>';
-    var nav = wrap.querySelector('.nav');
-    wrap.insertBefore(badge, nav);
+    var row = wrap.querySelector('.head-row') || wrap;
+    row.appendChild(badge);
   }
   function paintBadge(s) {
     if (!badge) return;
@@ -213,23 +213,51 @@
     badge.title = s.levelName + (s.nextXp ? '（次のレベルまで ' + (s.nextXp - s.xp) + ' XP）' : '（最高レベル）');
   }
 
-  /* ---------- ページ内の表示 ---------- */
+  /* ---------- 級の選択（保存して次回も使う） ---------- */
+  var SITE = window.EIKEN_SITE || { grades: [], steps: {} };
+  var GNAME = {};
+  SITE.grades.forEach(function (g) { GNAME[g.id] = g.name; });
   var body = document.body;
+  function getGrade() { var g = store.get('eiken:grade'); return GNAME[g] ? g : null; }
+  function setGrade(g) { if (GNAME[g]) store.set('eiken:grade', g); }
+  (function () {
+    var m = /[?&]g=([a-z0-9]+)/.exec(location.search);
+    if (m) setGrade(m[1]);
+    var hub = body.getAttribute('data-hub');
+    if (hub) setGrade(hub);   // 級のトップを開いた＝その級を選んだ
+  })();
+  document.querySelectorAll('[data-pick]').forEach(function (a) {
+    a.addEventListener('click', function () { setGrade(a.getAttribute('data-pick')); });
+  });
+  var selGrade = getGrade();
+
+  /* ヘッダー：級のチップと「級のトップ」リンク */
+  (function () {
+    var chip = document.querySelector('[data-gpick]');
+    if (chip && selGrade) { chip.innerHTML = '<span class="gp-l">受ける級</span>' + GNAME[selGrade] + '<span class="gp-c">変更</span>'; chip.classList.add('has'); }
+    var hubA = document.querySelector('[data-nav="hub"]');
+    if (hubA && selGrade) { hubA.href = 'grade-' + selGrade + '.html'; hubA.textContent = GNAME[selGrade] + 'のトップ'; }
+    else if (hubA) { hubA.textContent = 'トップ'; hubA.href = 'index.html'; }
+  })();
+
+  /* このページで使う級：選んだ級がこのページにあればその級だけ、なければ全部 */
+  var pageGrades = (body.getAttribute('data-page-grades') || '').split(' ').filter(Boolean);
+  if (pageGrades.length <= 1) body.classList.add('single-grade');
+  body.setAttribute('data-grade', (selGrade && pageGrades.length > 1 && pageGrades.indexOf(selGrade) >= 0) ? selGrade : 'all');
+
+  /* ---------- ページ内の表示 ---------- */
   var mode = store.get('eiken:mode');
   if (mode !== 'must' && mode !== 'core' && mode !== 'all') mode = 'core';
   body.setAttribute('data-mode', mode);
   var hideDone = store.get('eiken:hideDone') !== '0';
   body.setAttribute('data-hide-done', hideDone ? '1' : '0');
-  var grade = store.get('eiken:grade');
-  if (['all', 'p2', '2', 'p1', '1'].indexOf(grade) < 0) grade = 'all';
-  body.setAttribute('data-grade', grade);
-  var gbuttons = document.querySelectorAll('.gfilter button[data-grade]');
 
   var filter = document.querySelector('.filter');
   var progEl = document.getElementById('prog');
   var buttons = document.querySelectorAll('.filter button[data-mode]');
-  var hdBtn = null, emptyMsg = null, gradeMsg = null;
+  var hdBtn = null, emptyMsg = null;
   var hasItems = !!document.querySelector('.item');
+  var allItems = Array.prototype.slice.call(document.querySelectorAll('.item'));
 
   if (filter && hasItems) {
     hdBtn = document.createElement('button');
@@ -246,26 +274,15 @@
     emptyMsg = document.createElement('div');
     emptyMsg.className = 'empty-msg';
     emptyMsg.hidden = true;
-    emptyMsg.innerHTML = '<b>この範囲の項目は、すべて完了しました。</b><br><span>ボタンで範囲を広げるか、完了した項目を表示して見直せます。</span>';
+    emptyMsg.innerHTML = '<b>この範囲の項目は、すべて完了しました。</b><br><span>「＋差がつく」「＋不要」で範囲を広げるか、「完了を隠す」を外して見直せます。</span>';
     var tb = document.querySelector('.toolbar');
     tb.parentNode.insertBefore(emptyMsg, tb.nextSibling);
-
-    /* 選んだ級の項目がこのページに1つもないとき（例：準2級を選んで意見論述ページを開いた） */
-    gradeMsg = document.createElement('div');
-    gradeMsg.className = 'grade-empty';
-    gradeMsg.hidden = true;
-    gradeMsg.innerHTML = '<b>このページには、選んだ級の項目がありません。</b><br><span>上の「級」で「すべて」か別の級を選ぶと表示されます。準2級は「<a href="email.html">Eメール</a>」「<a href="essay-p2.html">意見論述（準2級）</a>」ページにあります。</span>';
-    tb.parentNode.insertBefore(gradeMsg, emptyMsg.nextSibling);
   }
-
-  document.querySelectorAll('.item h3').forEach(function (h, i) {
-    h.setAttribute('data-no', (i + 1 < 10 ? '0' : '') + (i + 1));
-  });
 
   function inGrade(el) {
     var g = body.getAttribute('data-grade');
     if (g === 'all') return true;
-    return (' ' + (el.getAttribute('data-grade') || '2 p1 1') + ' ').indexOf(' ' + g + ' ') >= 0;
+    return (' ' + (el.getAttribute('data-grade') || '') + ' ').indexOf(' ' + g + ' ') >= 0;
   }
   function inMode(tier) {
     var m = body.getAttribute('data-mode');
@@ -273,16 +290,26 @@
     if (m === 'core') return tier !== 'skip';
     return true;
   }
+  function isShown(it) { return it.classList.contains('force-show') || (inMode(it.getAttribute('data-tier')) && inGrade(it) && !(hideDone && it.classList.contains('is-done'))); }
+
+  /* 見出し（h2）の下の項目が全部隠れたら、見出しも隠す */
+  function paintHeadings() {
+    document.querySelectorAll('main > h2').forEach(function (h) {
+      var n = h.nextElementSibling, any = false, has = false;
+      while (n && n.tagName !== 'H2' && !n.classList.contains('quiz')) {
+        if (n.classList.contains('item')) { has = true; if (isShown(n)) any = true; }
+        n = n.nextElementSibling;
+      }
+      h.hidden = has && !any;
+    });
+  }
   function paintPage() {
     buttons.forEach(function (b) {
       b.setAttribute('aria-pressed', b.getAttribute('data-mode') === body.getAttribute('data-mode') ? 'true' : 'false');
     });
-    gbuttons.forEach(function (b) {
-      b.setAttribute('aria-pressed', b.getAttribute('data-grade') === body.getAttribute('data-grade') ? 'true' : 'false');
-    });
     if (!hasItems) return;
     var total = 0, done = 0, shown = 0;
-    document.querySelectorAll('.item').forEach(function (it) {
+    allItems.forEach(function (it) {
       var t = it.getAttribute('data-tier');
       if (!inMode(t) || !inGrade(it)) return;
       total++;
@@ -290,18 +317,45 @@
       if (isD) done++;
       if (!(hideDone && isD)) shown++;
     });
-    if (progEl) progEl.textContent = '理解した ' + done + ' / ' + total;
+    if (progEl) progEl.textContent = done + ' / ' + total;
+    if (progEl) progEl.title = '理解した項目 ' + done + ' / ' + total;
     if (hdBtn) {
       hdBtn.textContent = '完了を隠す' + (done ? '（' + done + '）' : '');
       hdBtn.setAttribute('aria-pressed', hideDone ? 'true' : 'false');
     }
     if (emptyMsg) emptyMsg.hidden = !(total > 0 && shown === 0);
-    if (gradeMsg) {
-      var anyInGrade = false;
-      document.querySelectorAll('.item').forEach(function (it) { if (inGrade(it)) anyInGrade = true; });
-      gradeMsg.hidden = anyInGrade;
-    }
+    paintHeadings();
   }
+
+  /* 項目の開閉：最初の未完了の項目だけを開く */
+  function openNext(after) {
+    var start = after ? allItems.indexOf(after) + 1 : 0;
+    for (var i = start; i < allItems.length; i++) {
+      var it = allItems[i];
+      if (isShown(it) && !it.classList.contains('is-done')) { it.querySelector('details').open = true; return it; }
+    }
+    return null;
+  }
+  var openAllBtn = document.querySelector('[data-openall]');
+  if (openAllBtn) {
+    openAllBtn.addEventListener('click', function () {
+      var anyClosed = allItems.some(function (it) { return isShown(it) && !it.querySelector('details').open; });
+      allItems.forEach(function (it) { it.querySelector('details').open = anyClosed; });
+      openAllBtn.textContent = anyClosed ? 'すべて閉じる' : 'すべて開く';
+    });
+  }
+  /* #id で来たとき（不要リストのリンクなど）は、その項目を必ず見せて開く */
+  function showHash() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    var it = id && document.getElementById(id);
+    if (!it || !it.classList.contains('item')) return false;
+    it.classList.add('force-show');
+    it.querySelector('details').open = true;
+    paintHeadings();
+    setTimeout(function () { it.scrollIntoView({ block: 'start' }); }, 0);
+    return true;
+  }
+  window.addEventListener('hashchange', showHash);
 
   buttons.forEach(function (b) {
     b.addEventListener('click', function () {
@@ -311,13 +365,36 @@
     });
   });
 
-  gbuttons.forEach(function (b) {
-    b.addEventListener('click', function () {
-      body.setAttribute('data-grade', b.getAttribute('data-grade'));
-      store.set('eiken:grade', b.getAttribute('data-grade'));
-      paintPage();
-    });
-  });
+  /* ---------- 手順の表示（ページ上：級 › ステップ、ページ下：次のステップ） ---------- */
+  (function () {
+    var f = pageFile(), g = selGrade, steps = g && SITE.steps[g];
+    if (!steps || !steps.some(function (s) { return s.page === f; })) {
+      g = null;
+      Object.keys(SITE.steps).forEach(function (k) { if (!g && pageGrades.length === 1 && pageGrades[0] === k) g = k; });
+      steps = g && SITE.steps[g];
+    }
+    if (!steps) return;
+    var i = -1;
+    steps.forEach(function (s, k) { if (s.page === f) i = k; });
+    if (i < 0) return;
+    var cr = document.getElementById('crumbs');
+    if (cr) cr.innerHTML = '<a href="grade-' + g + '.html">' + GNAME[g] + 'のトップ</a><span>›</span>' + steps[i].part + '<span>›</span><b>ステップ ' + (i + 1) + ' / ' + steps.length + '</b>';
+    var nx = document.getElementById('nextstep');
+    if (nx) {
+      var n = steps[i + 1];
+      nx.innerHTML = n ? '<a class="nextbtn" href="' + n.page + '"><span>次のステップ ' + (i + 2) + ' / ' + steps.length + '</span><b>' + n.name + ' →</b></a>'
+        : '<a class="nextbtn" href="grade-' + g + '.html"><span>' + GNAME[g] + 'の手順は、ここまで</span><b>' + GNAME[g] + 'のトップへ戻る →</b></a>';
+    }
+  })();
+
+  /* ---------- トップ：前回の級から再開 ---------- */
+  (function () {
+    var r = document.getElementById('resume');
+    if (!r || !selGrade) return;
+    document.querySelectorAll('.gcard[data-pick]').forEach(function (c) { if (c.getAttribute('data-pick') === selGrade) c.classList.add('sel'); });
+    r.hidden = false;
+    r.innerHTML = '<span>前回選んだ級：<b>' + GNAME[selGrade] + '</b></span><a class="nextbtn" href="grade-' + selGrade + '.html"><b>' + GNAME[selGrade] + 'のトップへ →</b></a>';
+  })();
 
   /* 読み上げ（ブラウザの音声合成。受験者の台詞・模範解答だけを読む） */
   document.querySelectorAll('.script .say').forEach(function (btn) {
@@ -366,10 +443,41 @@
     });
   }
 
+  /* 級のトップ・トップの級カード：その級の項目の進み具合 */
+  function gradeCount(g, page) {
+    var d = 0, t = 0;
+    ITEMS.forEach(function (it) {
+      if (it.tier === 'skip' || (page && it.page !== page) || (it.grades || []).indexOf(g) < 0) return;
+      if (!page && !(SITE.steps[g] || []).some(function (s) { return s.page === it.page; })) return;
+      t++; if (isDone(it.id)) d++;
+    });
+    return { d: d, t: t };
+  }
+  var nextMarked = false;
+  function paintHub() {
+    var first = null;
+    document.querySelectorAll('[data-step-page]').forEach(function (a) {
+      var c = gradeCount(a.getAttribute('data-step-grade'), a.getAttribute('data-step-page'));
+      var el = a.querySelector('.sprog');
+      var pct = c.t ? Math.round(c.d / c.t * 100) : 0;
+      if (el) el.innerHTML = '<span class="pbar"><i style="width:' + pct + '%"></i></span><span class="pnum">' + (c.t && c.d === c.t ? '完了' : c.d + ' / ' + c.t) + '</span>';
+      a.classList.toggle('done', c.t > 0 && c.d === c.t);
+      a.classList.remove('next');
+      if (!first && !(c.t > 0 && c.d === c.t)) first = a;
+    });
+    if (first) first.classList.add('next');
+    document.querySelectorAll('[data-gprog]').forEach(function (el) {
+      var c = gradeCount(el.getAttribute('data-gprog'));
+      var pct = c.t ? Math.round(c.d / c.t * 100) : 0;
+      el.innerHTML = '<span class="pbar"><i style="width:' + pct + '%"></i></span><span class="pnum">' + c.d + ' / ' + c.t + '</span>';
+    });
+  }
+
   function refresh(announce) {
     var s = compute();
     paintBadge(s);
     paintCards(s);
+    paintHub();
     paintPage();
     checkLevel(s, announce);
     checkAwards(s, announce);
@@ -387,6 +495,10 @@
       item.classList.toggle('is-done', checked);
       if (checked) {
         recordDay();
+        item.classList.remove('force-show');
+        item.querySelector('details').open = false;
+        var nx = openNext(item);
+        if (nx && !hideDone) nx.scrollIntoView({ block: 'nearest' });
         if (hideDone) {
           var h = item.querySelector('h3');
           toast({
@@ -464,15 +576,8 @@
     });
   }
 
-  /* ---------- 固定バーの位置（ヘッダーが折り返しても重ならない） ---------- */
-  function fitToolbar() {
-    var h = document.querySelector('.site-head'), t = document.querySelector('.toolbar');
-    if (h && t) t.style.top = h.offsetHeight + 'px';
-  }
-  fitToolbar();
-  window.addEventListener('resize', fitToolbar);
-
   /* ---------- 起動 ---------- */
   mountBadge();
   refresh(true);
+  if (hasItems && !showHash()) openNext(null);
 })();

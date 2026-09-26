@@ -3,20 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>トップ | 英検準2級 ライティング スクリプト集</title>
-<meta name="description" content="英検準2級のライティング（Eメール・意見論述）を、型（スクリプト）で対策する無料サイト。">
+<title>トップ | 英検スクリプト</title>
+<meta name="description" content="英検（実用英語技能検定）の英作文と面接を、型（スクリプト）で対策する非公式の無料サイト。受ける級を選んで始める。">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%97%A3%EF%B8%8F</text></svg>">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body data-mode="core" data-grade="all">
 <header class="site-head"><div class="wrap">
-  <a class="brand" href="index.html">英検準2級 ライティング スクリプト集</a>
-  <nav class="nav">
-    <a href="index.html" aria-current="page">トップ</a>
-    <a href="exam.html">試験の全体像</a>
-    <a href="email.html">Eメール（準2級）</a>
-    <a href="essay-p2.html">意見論述（準2級）</a>
+  <div class="head-row">
+    <a class="brand" href="index.html">英検スクリプト<small>型で書く・型で話す 英検対策</small></a>
+    <a class="gpick" href="index.html#grades" data-gpick>級を選ぶ</a>
+  </div>
+  <nav class="nav" aria-label="メインメニュー">
+    <a href="index.html" data-nav="hub">トップ</a>
+    <a href="exam.html">試験の形式</a>
     <a href="skip-list.html">不要リスト</a>
     <a href="progress.html">記録</a>
   </nav>
@@ -24,40 +25,42 @@
 
 <main class="wrap">
 
-  <h1>英検準2級 ライティング スクリプト集</h1>
-  <p class="lead">準2級のライティング（Eメール・意見論述）を、<b>型（スクリプト）</b>で攻める。</p>
+  <div class="crumbs" id="crumbs"></div>
+  <h1>英検スクリプト</h1>
+  <p class="lead">英検の英作文と面接を、<b>型（スクリプト）</b>で対策する。まず、受ける級を選ぶ。</p>
+  <div class="resume" id="resume" hidden></div>
+  <h2 id="grades">受ける級を選ぶ</h2>
+  <div class="gcards">
+    <a class="gcard" href="grade-p2.html" data-pick="p2"><b>準2級</b><span class="gsub">一次：公開中／二次：準備中</span><span class="gprog" data-gprog="p2"></span></a>
+    <a class="gcard off" href="grade-2.html" data-pick="2"><b>2級</b><span class="gsub">準備中・順次公開</span></a>
+    <a class="gcard off" href="grade-p1.html" data-pick="p1"><b>準1級</b><span class="gsub">準備中・順次公開</span></a>
+    <a class="gcard off" href="grade-1.html" data-pick="1"><b>1級</b><span class="gsub">準備中・順次公開</span></a>
+  </div>
+  <p class="note">選んだ級は、この端末のブラウザに保存され、次回もその級から始まる。級はいつでも、画面右上の級のボタンから変えられる。</p>
+  <h2>公開状況</h2>
+    <div class="tablewrap"><table>
+      <tr><th>級</th><th>一次（ライティング）</th><th>二次（面接）</th></tr>
+      <tr><td><b>準2級</b></td><td><span class="st on">公開中</span></td><td><span class="st off">準備中・順次公開</span></td></tr>
+      <tr><td>2級</td><td><span class="st off">準備中・順次公開</span></td><td><span class="st off">準備中・順次公開</span></td></tr>
+      <tr><td>準1級</td><td><span class="st off">準備中・順次公開</span></td><td><span class="st off">準備中・順次公開</span></td></tr>
+      <tr><td>1級</td><td><span class="st off">準備中・順次公開</span></td><td><span class="st off">準備中・順次公開</span></td></tr>
+    </table></div>
+  <p class="note">準備中の級・試験は、順次公開します。</p>
   <h2>このサイトの考え方</h2>
   <div class="tiers">
-    <div class="tier-card must"><span class="tier tier-must">型</span><h3>型に当てはめる</h3><p>Eメールも意見論述も、<b>型（スクリプト）</b>が決まっている。中身は毎回、型の{ }に入れるだけ。</p></div>
-    <div class="tier-card core"><span class="tier tier-core">書ける側</span><h3>書ける側を選ぶ</h3><p>賛成・反対は<b>本心でなくてよい</b>。簡単な英語で理由を書けるほうを選ぶ。</p></div>
-    <div class="tier-card skip"><span class="tier tier-skip">正確さ</span><h3>文構造を崩さない</h3><p>内容の独創性より、<b>正しい文</b>。難しい表現より、短い文を正確に。</p></div>
+    <div class="tier-card must"><h3>型に当てはめる</h3><p>作文も面接も、<b>型（スクリプト）</b>が決まっている。中身は毎回、型の{ }に入れるだけ。</p></div>
+    <div class="tier-card core"><h3>書ける側を選ぶ</h3><p>賛成・反対は<b>本心でなくてよい</b>。簡単な英語で理由を書けるほうを選ぶ。</p></div>
+    <div class="tier-card skip"><h3>文構造を崩さない</h3><p>内容の独創性より、<b>正しい文</b>。難しい表現より、短い文を正確に。</p></div>
   </div>
-  <h2>進め方</h2>
-  <ol class="steps">
-    <li><a href="exam.html">試験の全体像</a>で、準2級のライティングの形式を確認する。</li>
-    <li><a href="email.html">Eメール</a>の「3か所に印」「返信の型」で、1通返信を書く。語数を数える。</li>
-    <li><a href="essay-p2.html">意見論述</a>の「書ける側を選ぶ」「下書きメモ」「骨組み」を読み、模範解答を声に出して読む。</li>
-    <li>自分で1本ずつ書き、「0点・大幅減点チェック」で見直す。</li>
-  </ol>
-  <p class="note">各ページの上のボタンで、範囲（必須だけ／必須＋差がつく／不要ゾーンも見る）を切り替えられる。「理解した」を押すと経験値がたまる。記録は、この端末のブラウザにだけ保存される。</p>
-  <h2>ページ</h2>
-  <div class="cards">
-    <a class="card" href="exam.html"><b>試験の全体像</b><span>形式・語数・注意点（公式で確認した内容）。</span></a>
-    <a class="card pcard" href="email.html" data-page="email.html"><b>Eメール（準2級）</b><span>準2級の問題（2級以上・準2級プラスには出ない）。相手の質問に答える＋下線部について具体的な質問を2つ。40〜50語。</span><span class="pcard-prog"></span></a>
-    <a class="card pcard" href="essay-p2.html" data-page="essay-p2.html"><b>意見論述（準2級）</b><span>準2級の英作文。QUESTION に意見＋理由2つを、短い文で50〜60語。POINTS はない。</span><span class="pcard-prog"></span></a>
-    <a class="card" href="skip-list.html"><b>ここまでは不要</b><span>やらなくていいことと、その理由・例外。</span></a>
-    <a class="card" href="progress.html"><b>記録</b><span>レベル・経験値・トロフィー・連続学習日数。</span></a>
-  </div>
+  <p class="note">各ページの項目は<span class="tier tier-must">必須</span><span class="tier tier-core">差がつく</span><span class="tier tier-skip">ここまで不要</span>の3段階。まず必須だけを読めば、合格点の型はそろう。</p>
   <h2>注意</h2>
   <ul>
-    <li>いまは<b>準2級の一次試験（ライティング）</b>だけです。面接や上位級は、これから追加します。</li>
+    <li>非公式のサイトで、日本英語検定協会とは関係ありません。</li>
     <li>すべての例文・模範解答は、このサイトのオリジナル。過去問の転載ではない。</li>
-    <li>試験形式は変更されることがある。受験前に、必ず<a href="https://www.eiken.or.jp/">公式サイト</a>で確認する。</li>
-    <li>これは非公式のサイトで、日本英語検定協会とは関係ありません。</li>
+    <li>試験形式は変更されることがある。受験前に、必ず<a href="https://www.eiken.or.jp/">公式サイト</a>で確認する。形式と出典は<a href="exam.html">試験の形式</a>へ。</li>
   </ul>
-
   <footer>
-    作成中のサイトです。項目は、これから追加していきます。
+    非公式の英検対策サイト。準備中の級は順次公開します。
   </footer>
 </main>
 <script src="assets/manifest.js"></script>
