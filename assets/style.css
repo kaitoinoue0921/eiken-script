@@ -336,3 +336,5 @@ a.stepcard:hover{border-color:var(--rule-strong)}
   .nav{gap:14px;font-size:.86rem}
 }
 .item,h2{scroll-margin-top:64px}
+.site-foot{margin:0 auto 32px;padding-top:12px;font-size:.8rem;color:var(--ink-soft)}
+.site-foot a{color:inherit}
